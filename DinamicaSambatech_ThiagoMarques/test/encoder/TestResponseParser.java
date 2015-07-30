@@ -12,7 +12,7 @@ public class TestResponseParser {
 
     public TestResponseParser() {
         enc = new Encoding("test", "test");
-        
+
         request += "<?xml version='1.0'?>" + '\n';
         request += "<query>" + '\n';
         request += "    <userid>test</userid>" + '\n';
@@ -20,13 +20,13 @@ public class TestResponseParser {
         request += "    <action>getStatus</action>" + '\n';
         request += "    <mediaid>1</mediaid>" + '\n';
         request += "</query>";
-        
+
     }
 
     @Test
     public void testConstructor() {
         ByteArrayInputStream sbip;
-        
+
         sbip = new ByteArrayInputStream(request.getBytes());
         rp = new ResponseParser(sbip);
 
@@ -42,7 +42,7 @@ public class TestResponseParser {
 
         assertEquals(rp.getValueByElementName("action"), "getStatus");
     }
-    
+
     @Test
     public void testGetValueByElementNameNotFound() {
         ByteArrayInputStream sbip;

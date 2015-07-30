@@ -2,6 +2,8 @@ package io;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.junit.Test;
@@ -31,14 +33,19 @@ public class TestS3Uploader {
             output = new BufferedWriter(new FileWriter(file));
             output.write(text);
             output.close();
-            
+
         } catch (IOException e) {
-            e.printStackTrace();
+            fail();
         }
 
         if (file != null) {
-            //assertNotNull(s3.upload(file.));
-            file.delete();
+            try {
+                assertNotNull(s3.upload("test.txt", new FileInputStream(file)));
+                file.delete();
+            } catch (FileNotFoundException ex) {
+                fail();
+            }
+            
         } else {
             fail();
         }

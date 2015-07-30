@@ -18,13 +18,13 @@ public class Encoding implements Encoder {
         videoFormats = new HashMap<>();
         fillVideoFormats();
     }
-    
-    public String[] getVideoFormats(){
+
+    public String[] getVideoFormats() {
         return (String[]) videoFormats.keySet().toArray();
     }
 
     @Override
-    public String encode(String source, String destination, String format) {
+    public String encode(String source, String destination, String format, String notifyURL) {
         String request = "";
         String ret;
         InputStream is;
@@ -35,6 +35,7 @@ public class Encoding implements Encoder {
         request += "    <userkey>" + userKey + "</userkey>";
         request += "    <action>addMedia</action>";
         request += "    <source>" + source + "</source>";
+        request += "    <notify>" + notifyURL + "</notify>";
         request += "    <format>";
         request += videoFormats.get(format).getEncodingRequest();
         request += "        <destination>" + destination + "</destination>";
@@ -44,7 +45,7 @@ public class Encoding implements Encoder {
         is = makeRequest(request);
         if (is == null) {
             return "Error: Encoder service is not responding.";
-            
+
         } else {
             rp = new ResponseParser(is);
 
@@ -53,8 +54,6 @@ public class Encoding implements Encoder {
             }
 
             mediaID = rp.getValueByElementName("MediaID");
-            System.out.println(mediaID);
-            
             return "Encoding Started";
         }
     }
@@ -75,7 +74,7 @@ public class Encoding implements Encoder {
         is = makeRequest(request);
         if (is == null) {
             return false;
-            
+
         } else {
             rp = new ResponseParser(is);
 
@@ -96,7 +95,6 @@ public class Encoding implements Encoder {
         URL server = null;
 
         try {
-            System.out.println("Connecting to:" + url);
             server = new URL(url);
 
         } catch (MalformedURLException mfu) {
@@ -106,7 +104,6 @@ public class Encoding implements Encoder {
 
         try {
             sRequest = "xml=" + URLEncoder.encode(xml.toString(), "UTF8");
-            System.out.println("Open new connection to tunnel");
 
             urlConnection = (HttpURLConnection) server.openConnection();
             urlConnection.setRequestMethod("POST");
@@ -122,14 +119,11 @@ public class Encoding implements Encoder {
             urlConnection.connect();
             is = urlConnection.getInputStream();
 
-            //System.out.println("Response:" + urlConnection.getResponseCode());
-            //System.out.println("Response:" + urlConnection.getResponseMessage());
-
             response = urlConnection.getResponseCode() + " " + urlConnection.getResponseMessage();
             if (!response.equals("200 OK")) {
                 return null;
             }
-            
+
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -178,6 +172,5 @@ public class Encoding implements Encoder {
                 + "<hint>no</hint>");
 
         videoFormats.put(vf.toString(), vf);
-
     }
 }

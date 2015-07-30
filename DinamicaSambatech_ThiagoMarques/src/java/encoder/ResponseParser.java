@@ -27,14 +27,12 @@ public class ResponseParser {
         try {
             dBuilder = dbFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         try {
             response = dBuilder.parse(is);
             is.close();
         } catch (SAXException | IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -45,19 +43,19 @@ public class ResponseParser {
         String content;
 
         nList = response.getDocumentElement().getChildNodes();
-        
+
         for (int i = 0; i < nList.getLength(); i++) {
             node = nList.item(i);
-                        
-            if (node.getNodeType() == Node.ELEMENT_NODE){
+
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
                 content = node.getLastChild().getTextContent().trim();
-                
-                if(node.getNodeName().equals(elementName)){
+
+                if (node.getNodeName().equals(elementName)) {
                     return content;
                 }
             }
         }
-        
+
         return null;
     }
 }

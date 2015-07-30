@@ -1,15 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package encoder;
 
-/**
- *
- * @author Thiago
- */
 public class VideoFormat {
+
     private String name;
     private String bitrate;
     private String resolution;
@@ -20,7 +12,7 @@ public class VideoFormat {
         this.bitrate = bitrate;
         this.resolution = resolution;
         this.encodingRequest = encodingRequest;
-    }   
+    }
 
     public String getName() {
         return name;
@@ -52,10 +44,10 @@ public class VideoFormat {
 
     public void setEncodingRequest(String encodingRequest) {
         this.encodingRequest = encodingRequest;
-    }        
+    }
 
     @Override
     public String toString() {
         return name + " " + resolution + " " + bitrate;
-    }    
+    }
 }
