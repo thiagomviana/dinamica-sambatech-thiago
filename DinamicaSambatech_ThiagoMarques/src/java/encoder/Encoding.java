@@ -9,12 +9,13 @@ public class Encoding implements Encoder {
     private String userID;
     private String userKey;
     private String mediaID;
+    private String destinationURL;
     private ResponseParser rp;
     private HashMap<String, VideoFormat> videoFormats;
 
-    public Encoding(String userID, String userKey) {
-        this.userID = userID;
-        this.userKey = userKey;
+    public Encoding() {
+        this.userID = "userID"; //colocar ID do usuario do encoding.com aqui, o meu foi omitido por questões de seguranca 
+        this.userKey = "userKey"; //colocar chave do usuario do encoding.com aqui, a minha foi omitida por questões de seguranca 
         videoFormats = new HashMap<>();
         fillVideoFormats();
     }
@@ -24,18 +25,18 @@ public class Encoding implements Encoder {
     }
 
     @Override
-    public String encode(String source, String destination, String format, String notifyURL) {
+    public int encode(String source, String destination, String format) {
         String request = "";
-        String ret;
         InputStream is;
-
+        
+        destinationURL = destination;
+        
         request += "<?xml version='1.0'?>";
         request += "<query>";
         request += "    <userid>" + userID + "</userid>";
         request += "    <userkey>" + userKey + "</userkey>";
         request += "    <action>addMedia</action>";
         request += "    <source>" + source + "</source>";
-        request += "    <notify>" + notifyURL + "</notify>";
         request += "    <format>";
         request += videoFormats.get(format).getEncodingRequest();
         request += "        <destination>" + destination + "</destination>";
@@ -44,17 +45,17 @@ public class Encoding implements Encoder {
 
         is = makeRequest(request);
         if (is == null) {
-            return "Error: Encoder service is not responding.";
+            return -1;
 
         } else {
             rp = new ResponseParser(is);
 
-            if ((ret = rp.getValueByElementName("error")) != null) {
-                return "Error: " + ret;
+            if (rp.getValueByElementName("error") != null) {
+                return 1;
             }
 
             mediaID = rp.getValueByElementName("MediaID");
-            return "Encoding Started";
+            return 0;
         }
     }
 
@@ -82,7 +83,7 @@ public class Encoding implements Encoder {
         }
     }
 
-    private InputStream makeRequest(String request) {
+    private InputStream makeRequest(String request) { //implementa as conexoes para se fazer requisicoes ao encoding.com
         String sRequest, response;
         HttpURLConnection urlConnection;
         BufferedWriter out;
@@ -98,7 +99,6 @@ public class Encoding implements Encoder {
             server = new URL(url);
 
         } catch (MalformedURLException mfu) {
-            mfu.printStackTrace();
             return null;
         }
 
@@ -125,7 +125,7 @@ public class Encoding implements Encoder {
             }
 
         } catch (Exception exp) {
-            exp.printStackTrace();
+            return null;
         }
 
         return is;
@@ -133,7 +133,32 @@ public class Encoding implements Encoder {
 
     @Override
     public String getEncodingStatus() {
-        return rp.getValueByElementName("status");
+        switch (rp.getValueByElementName("status")){
+            case "New":
+                return "Na fila para a conversão";
+                
+            case "Downloading":
+                return "Recebendo vídeo para iniciar a conversão";
+                
+            case "Ready to process":
+                return "Pronto para a conversão";
+                
+            case "Waiting for encoder":
+                return "Aguardando o encoder";
+                
+            case "Processing":
+                return "Convertendo vídeo";
+                
+            case "Saving":
+                return "Salvando vídeo";
+                
+            case "Finished":
+                return "Conversão finalizada";
+                
+            case "Error":    
+                return "Ocorreu um erro na conversão. Verifique o arquivo enviado e tente novamente";
+        }        
+        return null;
     }
 
     @Override
@@ -144,6 +169,11 @@ public class Encoding implements Encoder {
     @Override
     public String getRemainingTime() {
         return rp.getValueByElementName("time_left");
+    }
+    
+    @Override
+    public String getDestinationURL() {
+        return destinationURL;
     }
 
     private void fillVideoFormats() {

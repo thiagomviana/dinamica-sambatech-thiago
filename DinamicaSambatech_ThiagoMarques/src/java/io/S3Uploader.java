@@ -3,12 +3,9 @@ package io;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class S3Uploader implements Uploader {
 
@@ -18,7 +15,7 @@ public class S3Uploader implements Uploader {
 
     public S3Uploader() {
         try {
-            credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+            credentials = new BasicAWSCredentials("accessID", "accessKey"); // colocar accessID e accessKey do Amazon S3 aqui, omitidas por razões de seguranca
             s3Bucket = "dinamica-sambatech-thiago";
         } catch (Exception e) {
             throw new AmazonClientException(
@@ -37,21 +34,17 @@ public class S3Uploader implements Uploader {
         try {
             tx = new TransferManager(credentials);
             upload = tx.upload(s3Bucket, fileName, file, null);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {            
             return null;
         }
 
         try {
-            upload.waitForCompletion();
+            upload.waitForCompletion(); //bloqueia a thread ate o fim do upload
             tx.shutdownNow();
             return "http://" + s3Bucket + ".s3.amazonaws.com/" + fileName;
-        } catch (AmazonClientException ex) {
-            Logger.getLogger(S3Uploader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(S3Uploader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+        } catch (AmazonClientException|InterruptedException ex) {
+           return null;
+        }        
     }
 
     @Override

@@ -11,7 +11,7 @@ public class TestResponseParser {
     private String request;
 
     public TestResponseParser() {
-        enc = new Encoding("test", "test");
+        enc = new Encoding();
 
         request += "<?xml version='1.0'?>" + '\n';
         request += "<query>" + '\n';

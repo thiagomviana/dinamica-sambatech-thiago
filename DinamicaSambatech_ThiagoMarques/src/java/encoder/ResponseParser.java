@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class ResponseParser {
+public class ResponseParser { //faz o parsing das respostas XML do encoding.com
 
     private Document response;
 
@@ -37,7 +37,7 @@ public class ResponseParser {
         }
     }
 
-    public String getValueByElementName(String elementName) {
+    public String getValueByElementName(String elementName) { //retorna valores de elementos "folha" do xml
         NodeList nList;
         Node node;
         String content;
